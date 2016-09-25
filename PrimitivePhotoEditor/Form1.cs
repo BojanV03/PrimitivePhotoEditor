@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
-
+using System.Drawing.Imaging;
 namespace PrimitivePhotoEditor
 {
     public partial class Form1 : Form
@@ -74,17 +74,24 @@ namespace PrimitivePhotoEditor
 
                     int width1 = workingImage.Width;
                     int height1 = workingImage.Height;
-                    for (int i = 0; i < width1; i++)
+
+                    BitmapData data = workingImage.LockBits(new Rectangle(0, 0, width1, height1), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
+                    unsafe
                     {
-                        for(int j = 0; j < height1; j++)
+                        byte* ptr = (byte*)data.Scan0;
+                        for (int i = 0; i < width1; i++)
                         {
-                            workingImagePixels[i, j].R = workingImage.GetPixel(i, j).R;
-                            workingImagePixels[i, j].G = workingImage.GetPixel(i, j).G;
-                            workingImagePixels[i, j].B = workingImage.GetPixel(i, j).B;
-                            progressBarLoading.Value++;
+                            for (int j = 0; j < height1; j++)
+                            {
+                                workingImagePixels[i, j].B = ptr[j*3 + i * height1];
+                                workingImagePixels[i, j].G = ptr[j * 3 + i * height1 + 1];
+                                workingImagePixels[i, j].R = ptr[j * 3 + i * height1 + 2];
+
+                            }
+                            progressBarLoading.Value += height1;
                         }
                     }
-
+                    workingImage.UnlockBits(data);
                     return;
                 }
             }
@@ -201,7 +208,7 @@ namespace PrimitivePhotoEditor
                 }
             }
 
-            workingImage = new Bitmap(b);
+            workingImage = b;
             pbMainImage.Image = workingImage;
         }
 
@@ -250,16 +257,30 @@ namespace PrimitivePhotoEditor
         private void gAndBToolStripMenuItem_Click(object sender, EventArgs e)
         {
             createUndo(workingImage);
-            for(int i = 0; i < workingImage.Width; i++)
+
+            progressBarLoading.Value = 0;
+
+            int rectWidth = workingImage.Width;
+            int rectHeight = workingImage.Height;
+
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
             {
-                for(int j = 0; j < workingImage.Height; j++)
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < rectHeight; i++)
                 {
-                    int R = workingImage.GetPixel(i, j).R;
-                    int G = workingImage.GetPixel(i, j).G;
-                    int B = workingImage.GetPixel(i, j).B;
-                    workingImage.SetPixel(i, j, Color.FromArgb(R, B, G));
+                    for (int j = 0; j < rectWidth; j++)
+                    {
+                        byte pom = ptr[j * 3 + i * stride];
+                        ptr[j * 3 + i * stride] = ptr[j * 3 + i * stride + 1];
+                        ptr[j * 3 + i * stride + 1] = pom;
+                    }
+                    progressBarLoading.Value += rectWidth;
                 }
             }
+
+            workingImage.UnlockBits(data);
             pbMainImage.Image = workingImage;
 
         }

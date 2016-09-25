@@ -7,3 +7,12 @@ C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\Primit
 C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csproj.GenerateResource.Cache
 C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.exe
 C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.pdb
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.exe.config
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.exe
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.pdb
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.exe
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.pdb
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csprojResolveAssemblyReference.cache
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Form1.resources
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Properties.Resources.resources
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csproj.GenerateResource.Cache
