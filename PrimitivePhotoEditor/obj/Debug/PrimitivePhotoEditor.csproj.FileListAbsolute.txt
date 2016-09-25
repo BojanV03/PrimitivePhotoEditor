@@ -1,0 +1,9 @@
+c:\users\bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.exe.config
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.exe
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.pdb
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csprojResolveAssemblyReference.cache
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Form1.resources
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Properties.Resources.resources
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csproj.GenerateResource.Cache
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.exe
+C:\Users\Bojan\documents\visual studio 2015\Projects\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.pdb
