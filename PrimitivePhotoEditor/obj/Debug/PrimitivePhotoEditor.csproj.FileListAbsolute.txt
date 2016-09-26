@@ -16,3 +16,14 @@ C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\Primit
 C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Form1.resources
 C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Properties.Resources.resources
 C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csproj.GenerateResource.Cache
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.exe.config
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.exe
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.pdb
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.exe
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\bin\Debug\PrimitivePhotoEditor.pdb
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csprojResolveAssemblyReference.cache
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Form1.resources
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.Properties.Resources.resources
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.csproj.GenerateResource.Cache
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.ColorPicker.resources
+D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.SizePicker.resources

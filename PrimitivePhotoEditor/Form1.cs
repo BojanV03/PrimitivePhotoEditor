@@ -19,8 +19,8 @@ namespace PrimitivePhotoEditor
         }
 
         Bitmap originalImage, workingImage;
-        Bitmap undoImage;
-        Bitmap redoImage;
+        Bitmap undoImage = null;
+        Bitmap redoImage = null;
 
         pixel[,] workingImagePixels;
 
@@ -32,12 +32,18 @@ namespace PrimitivePhotoEditor
         public void createUndo(Bitmap b)
         {
             undoToolStripMenuItem.Enabled = true;
+            if (undoImage != null)
+                undoImage.Dispose();
             undoImage = new Bitmap(b);
         }
 
+
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (undoImage != null)
+                undoImage.Dispose();
             undoImage = new Bitmap(workingImage);
+            workingImage.Dispose();
             workingImage = new Bitmap(redoImage);
             pbMainImage.Image = redoImage;
             undoToolStripMenuItem.Enabled = true;
@@ -46,27 +52,35 @@ namespace PrimitivePhotoEditor
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (redoImage != null)
+                redoImage.Dispose();
             redoImage = new Bitmap(workingImage);
+            workingImage.Dispose();
             workingImage = new Bitmap(undoImage);
             pbMainImage.Image = undoImage;
             undoToolStripMenuItem.Enabled = false;
             redoToolStripMenuItem.Enabled = true;
         }
+
         private void importToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            pbMainImage.SizeMode = PictureBoxSizeMode.Zoom;
             try
             {
                 if(importImageDialog.ShowDialog() == DialogResult.OK)
                 {
+                    if (originalImage != null)
+                        originalImage.Dispose();
                     originalImage = new Bitmap(importImageDialog.FileName);
+                    if (workingImage != null)
+                        workingImage.Dispose();
                     workingImage = new Bitmap(originalImage);
-                    pbMainImage.Image = workingImage;
-                    Thread.Sleep(1000);
 
+                    pbMainImage.Image = workingImage;
                     editToolStripMenuItem.Enabled = true;
                     exportToolStripMenuItem.Enabled = true;
+                    rotateOriginalImageToolStripMenuItem.Enabled = true;
                     reimportToolStripMenuItem.Enabled = true;
+                    solidColorToolStripMenuItem.Enabled = true;
 
                     workingImagePixels = new pixel[workingImage.Width, workingImage.Height];
 
@@ -161,12 +175,12 @@ namespace PrimitivePhotoEditor
 //Custom Rotation
         private void rotateCurrentWorkingImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            customRotateImage(workingImage, 33 * Math.PI / 180);
+            customRotateImage(workingImage, 90 * Math.PI / 180);
         }
 
         private void rotateOriginalImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            customRotateImage(originalImage, 33*Math.PI/180);
+            customRotateImage(originalImage, 90*Math.PI/180);
         }
 
         private void customRotateImage(Bitmap b, double angle)
@@ -183,11 +197,17 @@ namespace PrimitivePhotoEditor
             double width = b.Width * CosineTheta + b.Height * SineTheta;
             double height = b.Width * SineTheta + b.Height * CosineTheta;
 
+            if (width * height > 15000000)
+                MessageBox.Show("Your picture will have the resolution of " + ((int)width + 1) + "x" + ((int)height + 1) + " pixels... This may cause some memory problems, be aware... or better yet decrease the resolution... Good luck");
+
+            if (b != null)
+                b.Dispose();
             b = new Bitmap((int)width + 1, (int)height + 1);
 
             double heightTranslate2 = (b.Height - tempImage.Height) / 2;
             double widthTranslate2 = (b.Width - tempImage.Width) / 2;
-//          MessageBox.Show(workingImage.Width + "x" + workingImage.Height);
+
+
 
             for (int i = 0; i < tempImage.Width; i++)
             {
@@ -208,62 +228,87 @@ namespace PrimitivePhotoEditor
                 }
             }
 
-            workingImage = b;
+            workingImage.Dispose();
+            tempImage.Dispose();
+            workingImage = new Bitmap(b);
+            b.Dispose();
             pbMainImage.Image = workingImage;
         }
 
         private void fixRotToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            for(int i = 1; i < workingImage.Width-1; i++)
-            {
-                for(int j = 1; j < workingImage.Height-1; j++)
-                {
-                    int R = workingImage.GetPixel(i, j).R;
-                    int G = workingImage.GetPixel(i, j).G;
-                    int B = workingImage.GetPixel(i, j).B;
-                    if (R == 255 && G == 255 && B == 255)
-                    {
-                        R = G = B = 0;
-                        int brojac = 0;
-                        for (int k = i-1; k < i+1; k++)
-                        {
-                            for(int m = j-1; m < j+1; j++)
-                            {
-                                R += workingImage.GetPixel(k, m).R;
-                                G += workingImage.GetPixel(k, m).G;
-                                B += workingImage.GetPixel(k, m).B;
-                                brojac++;
-                            }
-                        }
-                        MessageBox.Show(" " + brojac);
+            createUndo(workingImage);
 
-                        R /= brojac;
-                        G /= brojac;
-                        B /= brojac;
-                        workingImage.SetPixel(i, j, Color.FromArgb(R, G, B));
+            int rectHeight = workingImage.Height;
+            int rectWidth = workingImage.Width;
+
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 1; i < rectHeight - 1; i++)
+                {
+                    for (int j = 1; j < rectWidth - 1; j++)
+                    {
+                        int R = ptr[i * stride + j * 3 + 2];
+                        int G = ptr[i * stride + j * 3 + 1];
+                        int B = ptr[i * stride + j * 3    ];
+
+                        if (R == 255 && G == 255 && B == 255)
+                        {
+                            R = G = B = -255;
+                            int brojac = -1;
+                            for (int k = i - 1; k <= i + 1; k++)
+                            {
+                                for (int m = j - 1; m <= j + 1; m++)
+                                {
+                                    R += ptr[k * stride + m * 3 + 2];
+                                    G += ptr[k * stride + m * 3 + 1];
+                                    B += ptr[k * stride + m * 3    ];
+                                    brojac++;
+                                }
+                            }
+                            
+
+                            R /= brojac;
+                            G /= brojac;
+                            B /= brojac;
+
+                            ptr[i * stride + j * 3 + 2] = (byte) R;//NOT WORKING FOR SOME REASON??
+                            ptr[i * stride + j * 3 + 1] = (byte) G;
+                            ptr[i * stride + j * 3 + 0] = (byte) B;
+                        }
                     }
                 }
             }
+
+            MessageBox.Show("BLA");
+            workingImage.UnlockBits(data);
+            pbMainImage.Image = workingImage;
         }
 
         private void reimportToolStripMenuItem_Click(object sender, EventArgs e)
         {
             undoToolStripMenuItem.Enabled = false;
             redoToolStripMenuItem.Enabled = false;
+
             workingImage = new Bitmap(originalImage);
+            MessageBox.Show(workingImage.Width + " " + originalImage.Width);
             pbMainImage.Image = workingImage;
         }
 
-        private void gAndBToolStripMenuItem_Click(object sender, EventArgs e)
+        public void swapChannels(Bitmap bmp, int a, int b)  /** a and b are the channels that we are swapping, 0 = Blue, 1 = Green, 2 = Red**/
         {
-            createUndo(workingImage);
+            createUndo(bmp);
 
             progressBarLoading.Value = 0;
 
-            int rectWidth = workingImage.Width;
-            int rectHeight = workingImage.Height;
+            int rectWidth = bmp.Width;
+            int rectHeight = bmp.Height;
 
-            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
             int stride = data.Stride;
             unsafe
             {
@@ -272,20 +317,71 @@ namespace PrimitivePhotoEditor
                 {
                     for (int j = 0; j < rectWidth; j++)
                     {
-                        byte pom = ptr[j * 3 + i * stride];
-                        ptr[j * 3 + i * stride] = ptr[j * 3 + i * stride + 1];
-                        ptr[j * 3 + i * stride + 1] = pom;
+                        byte pom = ptr[j * 3 + i * stride + a];
+                        ptr[j * 3 + i * stride + a] = ptr[j * 3 + i * stride + b];
+                        ptr[j * 3 + i * stride + b] = pom;
                     }
-                    progressBarLoading.Value += rectWidth;
+ //             progressBarLoading.Value += rectWidth;
                 }
             }
 
-            workingImage.UnlockBits(data);
-            pbMainImage.Image = workingImage;
+            bmp.UnlockBits(data);
+            pbMainImage.Image = bmp;
 
         }
 
+        private void rAndGToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            swapChannels(workingImage, 1, 2);
+        }
+        
+        private void rAndBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            swapChannels(workingImage, 0, 2);
+        }
 
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            pbMainImage.Size = new Size(this.Size.Width - 28, this.Size.Height - 110);
+            progressBarLoading.Size = new Size(this.Size.Width - 28, progressBarLoading.Size.Height);
+            progressBarLoading.Location = new Point(progressBarLoading.Location.X, this.Size.Height - 74);
+        }
 
+        private void customToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ColorPicker cp = new ColorPicker();
+            cp.ShowDialog();
+            if(cp.DialogResult == DialogResult.OK)
+            {
+                for(int i = 0; i < workingImage.Height; i++)
+                    for(int j = 0; j < workingImage.Width; j++)
+                    {
+                        workingImage.SetPixel(j, i, Color.FromArgb(cp.R, cp.G, cp.B));
+                    }
+            }
+            pbMainImage.Image = workingImage;
+        }
+
+        private void createCanvasToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SizePicker sp = new SizePicker();
+            sp.ShowDialog();
+            if(sp.DialogResult == DialogResult.OK)
+            {
+                if (workingImage != null)
+                    createUndo(workingImage);
+
+                workingImage = new Bitmap(sp.Width, sp.Height);
+                pbMainImage.Image = workingImage;
+                solidColorToolStripMenuItem.Enabled = true;
+                editToolStripMenuItem.Enabled = true;
+                exportToolStripMenuItem.Enabled = true;
+            }
+        }
+
+        private void gAndBToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            swapChannels(workingImage, 0, 1);
+        }
     }
 }
