@@ -43,6 +43,7 @@
             this.tbWidth.Name = "tbWidth";
             this.tbWidth.Size = new System.Drawing.Size(100, 20);
             this.tbWidth.TabIndex = 0;
+            this.tbWidth.Text = "1024";
             this.tbWidth.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbWidth.TextChanged += new System.EventHandler(this.tbWidth_TextChanged);
             // 
@@ -61,6 +62,7 @@
             this.tbHeight.Name = "tbHeight";
             this.tbHeight.Size = new System.Drawing.Size(100, 20);
             this.tbHeight.TabIndex = 2;
+            this.tbHeight.Text = "1024";
             this.tbHeight.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.tbHeight.TextChanged += new System.EventHandler(this.tbHeight_TextChanged);
             // 

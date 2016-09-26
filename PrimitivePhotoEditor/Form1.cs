@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Drawing.Imaging;
+
 namespace PrimitivePhotoEditor
 {
     public partial class Form1 : Form
@@ -18,7 +19,8 @@ namespace PrimitivePhotoEditor
             InitializeComponent();
         }
 
-        Bitmap originalImage, workingImage;
+        Bitmap originalImage;
+        public Bitmap workingImage;
         Bitmap undoImage = null;
         Bitmap redoImage = null;
 
@@ -79,6 +81,7 @@ namespace PrimitivePhotoEditor
                     editToolStripMenuItem.Enabled = true;
                     exportToolStripMenuItem.Enabled = true;
                     rotateOriginalImageToolStripMenuItem.Enabled = true;
+                    pixelOperationsToolStripMenuItem.Enabled = true;
                     reimportToolStripMenuItem.Enabled = true;
                     solidColorToolStripMenuItem.Enabled = true;
 
@@ -347,19 +350,38 @@ namespace PrimitivePhotoEditor
             progressBarLoading.Location = new Point(progressBarLoading.Location.X, this.Size.Height - 74);
         }
 
+        public void solidColorFill(Bitmap image, Color c)
+        {
+            int width = image.Width;
+            int height = image.Height;
+            BitmapData data = image.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                    for (int j = 0; j < width; j++)
+                    {
+                        ptr[j * 3 + i * stride + 2] = c.R;
+                        ptr[j * 3 + i * stride + 1] = c.G;
+                        ptr[j * 3 + i * stride + 0] = c.B;
+                    }
+            }
+            image.UnlockBits(data);
+        }
         private void customToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ColorPicker cp = new ColorPicker();
             cp.ShowDialog();
+
+            
             if(cp.DialogResult == DialogResult.OK)
             {
-                for(int i = 0; i < workingImage.Height; i++)
-                    for(int j = 0; j < workingImage.Width; j++)
-                    {
-                        workingImage.SetPixel(j, i, Color.FromArgb(cp.R, cp.G, cp.B));
-                    }
+                createUndo(workingImage);
+
+                solidColorFill(workingImage, Color.FromArgb(cp.R, cp.G, cp.B));
+                pbMainImage.Image = workingImage;
             }
-            pbMainImage.Image = workingImage;
         }
 
         private void createCanvasToolStripMenuItem_Click(object sender, EventArgs e)
@@ -371,17 +393,339 @@ namespace PrimitivePhotoEditor
                 if (workingImage != null)
                     createUndo(workingImage);
 
-                workingImage = new Bitmap(sp.Width, sp.Height);
+                workingImage = new Bitmap(sp.chosenWidth, sp.chosenHeight);
+                solidColorFill(workingImage, Color.Gray);
                 pbMainImage.Image = workingImage;
                 solidColorToolStripMenuItem.Enabled = true;
+                pixelOperationsToolStripMenuItem.Enabled = true;
                 editToolStripMenuItem.Enabled = true;
                 exportToolStripMenuItem.Enabled = true;
             }
         }
 
+        private void blackToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Black);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void grayToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Gray);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void whiteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.White);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void redToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Red);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void greenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Green);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void blueToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Blue);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void cyanToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Cyan);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void purpleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Purple);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void yellowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            solidColorFill(workingImage, Color.Yellow);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void generateTexture(Bitmap image, String S)
+        {
+            createUndo(workingImage);
+
+            int width = image.Width;
+            int height = image.Height;
+            BitmapData data = image.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                {
+                    double sineI = Math.Sin(i * Math.PI / 180);
+                    double sineHI = Math.Sinh(i * Math.PI / 180);
+                    double cosineI = Math.Cos(i * Math.PI / 180);
+                    double cosineHI = Math.Cosh(i * Math.PI / 180);
+                    for (int j = 0; j < width; j++)
+                    {
+                        double sineJ = Math.Sin(j * Math.PI / 180);
+                        double cosineJ = Math.Cos(j * Math.PI / 180);
+                        int R = 0, G = 0, B = 0;
+                        switch (S)
+                        {
+                            //boolean
+                            case "OR": R = i | j; G = i | j; B = i | j; break;
+                            case "AND": R = i & j; G = i & j; B = i & j; break;
+                            case "XOR": R = i ^ j; G = i ^ j; B = i ^ j; break;
+                            //arithmetic
+                            case "ADD": R = i + j; G = i + j; B = i + j; break;
+                            case "MUL": R = i * j; G = i * j; B = i * j; break;
+                            case "SUB": R = i - j; G = i - j; B = i - j; break;
+                            //trigonometric
+                            case "SIN": R = (byte)(255 * Math.Sin((i + j) * Math.PI / 180)); G = (byte)(255 * Math.Sin((i + j) * Math.PI / 180)); B = (byte)(255 * Math.Sin((i + j) * Math.PI / 180)); break;
+                            case "COS": R = (byte)(255 * Math.Cos((i + j) * Math.PI / 180)); G = (byte)(255 * Math.Cos((i + j) * Math.PI / 180)); B = (byte)(255 * Math.Cos((i + j) * Math.PI / 180)); break;
+                            case "SINSIN": R = (byte)(255 * sineI * sineJ); G = (byte)(255 * sineI * sineJ); B = (byte)(255 * sineI * sineJ); break;
+                            case "COSCOS": R = (byte)(255 * cosineI * cosineJ); G = (byte)(255 * cosineI * cosineJ); B = (byte)(255 * cosineI * cosineJ); break;
+                            case "SINHSIN": R = (byte)(255 * sineHI * sineJ); G = (byte)(255 * sineHI * sineJ); B = (byte)(255 * sineHI * sineJ); break;
+                            case "SINHCOS": R = (byte)(255 * sineHI * cosineJ); G = (byte)(255 * sineHI * cosineJ); B = (byte)(255 * sineHI * cosineJ); break;
+                            case "TAN": int TanIJ = (byte)(255 * Math.Tan((i + j) * Math.PI / 180)); R = TanIJ; G = TanIJ; B = TanIJ;  break;
+                            case "TANTAN":
+                                int TanI = (byte)(255 * Math.Tan((i * Math.PI / 180)));
+                                int TanJ = (byte)(255 * Math.Tan((j * Math.PI / 180)));
+                                R = TanI ^ TanJ;
+                                G = TanI ^ TanJ;
+                                B = TanI ^ TanJ; break;
+                            default: break;
+                        }
+                        R += 0;
+                        G += 0;
+                        B += 0;
+
+                        R %= 256;
+                        G %= 256;
+                        B %= 256;
+                        ptr[j * 3 + i * stride + 2] = (byte)R;
+                        ptr[j * 3 + i * stride + 1] = (byte)G;
+                        ptr[j * 3 + i * stride + 0] = (byte)B;
+                    }
+                }
+            }
+            image.UnlockBits(data);
+
+            pbMainImage.Image = image;
+        }
+
+        private void aNDTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "AND");
+        }
+
+        private void oRTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "OR");
+        }
+
+        private void xORTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "XOR");
+        }
+
+        private void aDDToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "ADD");
+        }
+
+        private void multiplyTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "MUL");
+        }
+
+        private void substractTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "SUB");
+        }
+
+        private void sineTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "SIN");
+        }
+
+        private void cosineTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "COS");
+        }
+
+        private void cosiCosjToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "COSCOS");
+        }
+
+        private void siniSinjToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "SINSIN");
+        }
+
+        private void sinhiSinjToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "SINHSIN");
+        }
+
+        private void sinhiCosjToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "SINHCOS");
+        }
+
+        private void tangensTextureToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "TAN");
+        }
+
+        private void tANTANToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            generateTexture(workingImage, "TANTAN");
+        }
+
+        private void invertToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            int width = workingImage.Width;
+            int height = workingImage.Height;
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        ptr[j * 3 + i * stride + 2] = (byte)(255 - ptr[j * 3 + i * stride + 2]);
+                        ptr[j * 3 + i * stride + 1] = (byte)(255 - ptr[j * 3 + i * stride + 1]);
+                        ptr[j * 3 + i * stride + 0] = (byte)(255 - ptr[j * 3 + i * stride + 0]);
+                    }
+                }
+            }
+            workingImage.UnlockBits(data);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void monochromeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            int width = workingImage.Width;
+            int height = workingImage.Height;
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        int R = ptr[j * 3 + i * stride + 2];
+                        int G = ptr[j * 3 + i * stride + 1];
+                        int B = ptr[j * 3 + i * stride + 0];
+                        byte median = (byte)((R+G+B)/3);
+                        ptr[j * 3 + i * stride + 0] = median;
+                        ptr[j * 3 + i * stride + 1] = median;
+                        ptr[j * 3 + i * stride + 2] = median;
+                    }
+                }
+            }
+            workingImage.UnlockBits(data);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void hueSaturationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            HueSaturation Q = new HueSaturation(this);
+            Q.Show();
+        }
+
         private void gAndBToolStripMenuItem_Click(object sender, EventArgs e)
         {
             swapChannels(workingImage, 0, 1);
+        }
+
+        private void analyzePicToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int width = workingImage.Width;
+            int height = workingImage.Height;
+            ulong numOfPixels = (ulong)width * (ulong)height;
+            ulong R = 0, G = 0, B = 0;
+            double hue = 0;
+            double saturation = 0;
+            double brightness = 0;
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        int tmpRed = ptr[j * 3 + i * stride + 2];
+                        int tmpGreen = ptr[j * 3 + i * stride + 1];
+                        int tmpBlue = ptr[j * 3 + i * stride + 0];
+
+                        R += ptr[tmpRed];
+                        G += ptr[tmpGreen];
+                        B += ptr[tmpBlue];
+
+                        Color C = Color.FromArgb(tmpRed, tmpGreen, tmpBlue);
+                        hue += C.GetHue();
+                        saturation += C.GetSaturation();
+                        brightness += C.GetBrightness();
+
+
+           //             double lightness = (max + min) / 2;
+            //            saturation = (max - min) / (1 - Math.Abs(2 * lightness - 1));
+                    }
+                }
+            }
+
+            workingImage.UnlockBits(data);
+            MessageBox.Show("Resolution: " + workingImage.Width + "x" + workingImage.Height + 
+                            "\nTotal number of pixels: " + numOfPixels + 
+                            "\nSum of red pixels: " + R +
+                            "\nSum of green pixels: " + G +
+                            "\nSum of blue pixels: " + B +
+                            "\nAverage color per pixel: (" + (R / numOfPixels) + ", " + (G/numOfPixels) + ", " + (B/numOfPixels) + ")\n" + 
+                            "\nHue sum: " + hue +
+                            "\nSaturation sum: " + saturation +
+                            "\nBrightness sum: " + brightness +
+                            "\nAverage HSB per pixel: (" + (hue / numOfPixels) + ", " + (saturation / numOfPixels) + ", " + (brightness / numOfPixels) + ")\n"
+                            );
         }
     }
 }

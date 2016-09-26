@@ -17,8 +17,8 @@ namespace PrimitivePhotoEditor
             InitializeComponent();
         }
 
-        public int Width, Height;
-        public uint tmpWidth = 0, tmpHeight = 0;
+        public int chosenWidth, chosenHeight;
+        public uint tmpWidth = 1024, tmpHeight = 1024;
 
         private void tbHeight_TextChanged(object sender, EventArgs e)
         {
@@ -36,7 +36,7 @@ namespace PrimitivePhotoEditor
                     return;
                 }
             }
-            Height = (int)tmpHeight;
+            chosenHeight = (int)tmpHeight;
         }
 
         private void tbWidth_TextChanged(object sender, EventArgs e)
@@ -55,13 +55,13 @@ namespace PrimitivePhotoEditor
                     return;
                 }
             }
-            Width = (int)tmpWidth;
+            chosenWidth = (int)tmpWidth;
         }
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            Height = (int)tmpHeight;
-            Width = (int)tmpWidth;
+            chosenHeight = (int)tmpHeight;
+            chosenWidth = (int)tmpWidth;
         }
     }
 }
