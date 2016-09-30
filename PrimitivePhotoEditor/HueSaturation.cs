@@ -22,22 +22,59 @@ namespace PrimitivePhotoEditor
         private Bitmap tempImage;
         private Form1 originalForm;
 
-        private void trackBarHue_ValueChanged(object sender, EventArgs e)
+
+
+        public static Color ColorFromAhsb(int a, float h, float s, float b)
         {
-            lblHueValue.Text = Convert.ToString(trackBarHue.Value - 180);
+            int Switch, maxIntValue, midIntValue, minIntValue;
+            float maxValue, midValue, minValue;
+
+            if (0.5 < b)
+            {
+                maxValue = b - (b * s) + s;
+                minValue = b + (b * s) - s;
+            }
+            else
+            {
+                maxValue = b + (b * s);
+                minValue = b - (b * s);
+            }
+
+            Switch = (int)Math.Floor(h / 60f);
+            if (300f <= h)
+                h -= 360f;
+
+            h /= 60f;
+            h -= 2f * (float)Math.Floor(((Switch + 1f) % 6f) / 2f);
+            if (0 == Switch % 2)
+                midValue = h * (maxValue - minValue) + minValue;
+
+            else
+                midValue = minValue - h * (maxValue - minValue);
+
+            maxIntValue = Convert.ToInt32(maxValue * 255);
+            midIntValue = Convert.ToInt32(midValue * 255);
+            minIntValue = Convert.ToInt32(minValue * 255);
+
+            switch (Switch)
+            {
+                case 1: return Color.FromArgb(a, midIntValue, maxIntValue, minIntValue);
+                case 2: return Color.FromArgb(a, minIntValue, maxIntValue, midIntValue);
+                case 3: return Color.FromArgb(a, minIntValue, midIntValue, maxIntValue);
+                case 4: return Color.FromArgb(a, midIntValue, minIntValue, maxIntValue);
+                case 5: return Color.FromArgb(a, maxIntValue, minIntValue, midIntValue);
+                default: return Color.FromArgb(a, maxIntValue, midIntValue, minIntValue);
+            }
         }
 
-        public void RGBtoHSV(Color C)
-        {
-
-        }
-        
         private void applyHSB(Bitmap b, double hue, double saturation, double brightness)
         {
             int width = b.Width;
             int height = b.Height;
             BitmapData data = b.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
             int stride = data.Stride;
+            originalForm.progressBarLoading.Maximum = height + 2;
+            originalForm.progressBarLoading.Value = 1;
             unsafe
             {
                 byte* ptr = (byte*)data.Scan0;
@@ -46,22 +83,34 @@ namespace PrimitivePhotoEditor
                     for (int j = 0; j < width; j++)
                     {
 
-                        int R = ptr[j * 3 + i * stride + 2];
-                        int G = ptr[j * 3 + i * stride + 1];
-                        int B = ptr[j * 3 + i * stride + 0];
+                        int Red = ptr[j * 3 + i * stride + 2];
+                        int Green = ptr[j * 3 + i * stride + 1];
+                        int Blue = ptr[j * 3 + i * stride + 0];
+                        Color orig = Color.FromArgb(Red, Green, Blue);
+                        float H = orig.GetHue() + (float)(hue);
+                        float S = orig.GetSaturation() * (float)(saturation / 75);
+                        float B = orig.GetBrightness() * (float)(brightness /100.0);
 
-                        R = (int)((double)R * (double)(brightness + 100) / 100d);
-                        G = (int)((double)G * (double)(brightness + 100) / 100d);
-                        B = (int)((double)B * (double)(brightness + 100) / 100d);
+                        if (H < 0)
+                            H = 0;
+                        if (H > 360)
+                            H -= 360;
+                        if (S < 0)
+                            S = 0;
+                        if (S > 1)
+                            S = 1;
+                        if (B < 0)
+                            B = 0;
+                        if (B > 1)
+                            B = 1;
+                        Color C = ColorFromAhsb(255, H, S, B);
 
-                        R = R < 255 ? R : 255;
-                        G = G < 255 ? G : 255;
-                        B = B < 255 ? B : 255;
                         //                MessageBox.Show("Promenjeno sa " + ptr[j * 3 + i * stride + 2] + " na " + R);
-                        ptr[j * 3 + i * stride + 2] = (byte) R;
-                        ptr[j * 3 + i * stride + 1] = (byte) G;
-                        ptr[j * 3 + i * stride + 0] = (byte) B;
+                        ptr[j * 3 + i * stride + 2] = (byte) C.R;
+                        ptr[j * 3 + i * stride + 1] = (byte) C.G;
+                        ptr[j * 3 + i * stride + 0] = (byte) C.B;
                     }
+                    originalForm.progressBarLoading.Value ++;
                 }
             }
 
@@ -75,7 +124,18 @@ namespace PrimitivePhotoEditor
                 updatePreview();
 
         }
-
+        private void trackBarSaturation_ValueChanged(object sender, EventArgs e)
+        {
+            lblSaturationValue.Text = Convert.ToString(trackBarSaturation.Value - 100);
+            if (cbPreview.Checked)
+                updatePreview();
+        }
+        private void trackBarHue_ValueChanged(object sender, EventArgs e)
+        {
+            lblHueValue.Text = Convert.ToString(trackBarHue.Value - 180);
+            if (cbPreview.Checked)
+                updatePreview();
+        }
         private void updatePreview()
         {
             int width = tempImage.Width;
@@ -89,7 +149,7 @@ namespace PrimitivePhotoEditor
 
             tempImage = new Bitmap(originalForm.workingImage, width, height);
 
-            applyHSB(tempImage, trackBarHue.Value - 180, trackBarSaturation.Value - 100, trackBarBrightness.Value - 100);
+            applyHSB(tempImage, trackBarHue.Value-180, trackBarSaturation.Value, trackBarBrightness.Value);
 
             originalForm.pbMainImage.Image = tempImage;
         }
@@ -120,14 +180,16 @@ namespace PrimitivePhotoEditor
             
 
             resultImage = new Bitmap(originalForm.workingImage, width, height);
-            tempImage = new Bitmap(resultImage);
+            tempImage = new Bitmap(resultImage,(int) (width/tmp), (int)(height/tmp));
         }
 
         private void HueSaturation_FormClosing(object sender, FormClosingEventArgs e)
         {
-            applyHSB(originalForm.workingImage, trackBarHue.Value - 180, trackBarSaturation.Value - 100, trackBarBrightness.Value - 100);
+            applyHSB(originalForm.workingImage, trackBarHue.Value - 180, trackBarSaturation.Value, trackBarBrightness.Value);
 
             originalForm.pbMainImage.Image = originalForm.workingImage;
         }
+
+
     }
 }

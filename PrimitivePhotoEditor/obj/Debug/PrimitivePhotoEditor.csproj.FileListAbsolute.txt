@@ -28,3 +28,6 @@ D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoE
 D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.ColorPicker.resources
 D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.SizePicker.resources
 D:\P.S\Sve\Programcici\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.HueSaturation.resources
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.ColorPicker.resources
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.HueSaturation.resources
+C:\Users\Laptop\Desktop\Programcici\OzbiljnijeStvari\PrimitivePhotoEditor\PrimitivePhotoEditor\PrimitivePhotoEditor\obj\Debug\PrimitivePhotoEditor.SizePicker.resources

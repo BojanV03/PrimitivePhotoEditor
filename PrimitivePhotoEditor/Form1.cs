@@ -19,17 +19,14 @@ namespace PrimitivePhotoEditor
             InitializeComponent();
         }
 
+        Color mainDrawColor = Color.Black, secondaryDrawColor = Color.White;
         Bitmap originalImage;
+        
         public Bitmap workingImage;
         Bitmap undoImage = null;
         Bitmap redoImage = null;
-
-        pixel[,] workingImagePixels;
-
-        struct pixel
-        {
-            public int R, G, B;
-        }
+        private Boolean draw = false;
+        private Boolean isMouseDown = false;
 
         public void createUndo(Bitmap b)
         {
@@ -38,7 +35,6 @@ namespace PrimitivePhotoEditor
                 undoImage.Dispose();
             undoImage = new Bitmap(b);
         }
-
 
         private void redoToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -64,6 +60,26 @@ namespace PrimitivePhotoEditor
             redoToolStripMenuItem.Enabled = true;
         }
 
+        private void enableEdit()
+        {
+            editToolStripMenuItem.Enabled = true;
+            cWToolStripMenuItem.Enabled = true;
+            cCWToolStripMenuItem.Enabled = true;
+            rotate180ToolStripMenuItem2.Enabled = true;
+            xAxisToolStripMenuItem.Enabled = true;
+            yAxisToolStripMenuItem.Enabled = true;
+            bothToolStripMenuItem.Enabled = true;
+            rotateOriginalImageToolStripMenuItem.Enabled = true;
+            rotateCurrentWorkingImageToolStripMenuItem.Enabled = true;
+            fixRotToolStripMenuItem.Enabled = true;
+            rAndBToolStripMenuItem.Enabled = true;
+            rAndGToolStripMenuItem.Enabled = true;
+            gAndBToolStripMenuItem.Enabled = true;
+            invertToolStripMenuItem.Enabled = true;
+            monochromeToolStripMenuItem.Enabled = true;
+            hueSaturationToolStripMenuItem.Enabled = true;
+            analyzePicToolStripMenuItem.Enabled = true;
+        }
         private void importToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
@@ -77,38 +93,13 @@ namespace PrimitivePhotoEditor
                         workingImage.Dispose();
                     workingImage = new Bitmap(originalImage);
 
-                    pbMainImage.Image = workingImage;
-                    editToolStripMenuItem.Enabled = true;
+                    enableEdit();
                     exportToolStripMenuItem.Enabled = true;
-                    rotateOriginalImageToolStripMenuItem.Enabled = true;
                     pixelOperationsToolStripMenuItem.Enabled = true;
                     reimportToolStripMenuItem.Enabled = true;
                     solidColorToolStripMenuItem.Enabled = true;
 
-                    workingImagePixels = new pixel[workingImage.Width, workingImage.Height];
-
-                    progressBarLoading.Maximum = workingImage.Width * workingImage.Height;
-
-                    int width1 = workingImage.Width;
-                    int height1 = workingImage.Height;
-
-                    BitmapData data = workingImage.LockBits(new Rectangle(0, 0, width1, height1), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-                    unsafe
-                    {
-                        byte* ptr = (byte*)data.Scan0;
-                        for (int i = 0; i < width1; i++)
-                        {
-                            for (int j = 0; j < height1; j++)
-                            {
-                                workingImagePixels[i, j].B = ptr[j*3 + i * height1];
-                                workingImagePixels[i, j].G = ptr[j * 3 + i * height1 + 1];
-                                workingImagePixels[i, j].R = ptr[j * 3 + i * height1 + 2];
-
-                            }
-                            progressBarLoading.Value += height1;
-                        }
-                    }
-                    workingImage.UnlockBits(data);
+                    pbMainImage.Image = workingImage;
                     return;
                 }
             }
@@ -148,13 +139,13 @@ namespace PrimitivePhotoEditor
             pbMainImage.Image = workingImage;
         }
 
-        private void toolStripMenuItem2_Click(object sender, EventArgs e)
+        private void rotate180ToolStripMenuItem2_Click(object sender, EventArgs e)
         {
             createUndo(workingImage);
             workingImage.RotateFlip(RotateFlipType.Rotate180FlipNone);
             pbMainImage.Image = workingImage;
         }
-//flips
+        //flips
         private void bothToolStripMenuItem_Click(object sender, EventArgs e)
         {
             createUndo(workingImage);
@@ -297,6 +288,11 @@ namespace PrimitivePhotoEditor
             undoToolStripMenuItem.Enabled = false;
             redoToolStripMenuItem.Enabled = false;
 
+            if(workingImage != null)
+            {
+                workingImage.Dispose();
+                workingImage = null;
+            }
             workingImage = new Bitmap(originalImage);
             MessageBox.Show(workingImage.Width + " " + originalImage.Width);
             pbMainImage.Image = workingImage;
@@ -345,7 +341,7 @@ namespace PrimitivePhotoEditor
 
         private void Form1_Resize(object sender, EventArgs e)
         {
-            pbMainImage.Size = new Size(this.Size.Width - 28, this.Size.Height - 110);
+            pbMainImage.Size = new Size(this.Size.Width - 80, this.Size.Height - 110);
             progressBarLoading.Size = new Size(this.Size.Width - 28, progressBarLoading.Size.Height);
             progressBarLoading.Location = new Point(progressBarLoading.Location.X, this.Size.Height - 74);
         }
@@ -369,11 +365,11 @@ namespace PrimitivePhotoEditor
             }
             image.UnlockBits(data);
         }
+
         private void customToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             ColorPicker cp = new ColorPicker();
             cp.ShowDialog();
-
             
             if(cp.DialogResult == DialogResult.OK)
             {
@@ -726,6 +722,437 @@ namespace PrimitivePhotoEditor
                             "\nBrightness sum: " + brightness +
                             "\nAverage HSB per pixel: (" + (hue / numOfPixels) + ", " + (saturation / numOfPixels) + ", " + (brightness / numOfPixels) + ")\n"
                             );
+        }
+
+        private void btnPen_Click(object sender, EventArgs e)
+        {
+            if(draw == false)
+            {
+                draw = true;
+                btnPen.FlatStyle = FlatStyle.Flat;
+            }
+            else
+            {
+                draw = false;
+                btnPen.FlatStyle = FlatStyle.Standard;
+            }
+        }
+
+
+        private Point calculateClickLocation(int clickX, int clickY)
+        {
+            Point result = new Point();
+            double div;
+
+            if ((double)workingImage.Width/(float)pbMainImage.Width > (float)workingImage.Height/(float)pbMainImage.Height)
+            {
+                div = (double)workingImage.Width / pbMainImage.Width;
+                result.X = 0;
+                result.Y = (int)(workingImage.Height / div);
+                result.Y = pbMainImage.Height - result.Y;
+                result.Y /= 2;
+            }
+            else
+            {
+                div = (double)workingImage.Height / pbMainImage.Height;
+                result.Y = 0;
+                result.X = (int)(workingImage.Width / div);
+                result.X = pbMainImage.Width - result.X;
+                result.X /= 2;
+            }
+            if (clickX < result.X || clickY < result.Y || clickX > result.X + (workingImage.Width / div) || clickY > result.Y + (workingImage.Height / div))
+            {
+                MessageBox.Show("I can't draw outside of the canvas you silly");
+                result.X = -1;
+                result.Y = -1;
+                return result;
+            }
+            result.X = (int)((clickX - result.X) * div);
+            result.Y = (int)((clickY - result.Y) * div);
+            return result;
+        }
+
+        private Boolean drawCircle(Bitmap b, Point Center, int Radius, Color C)
+        {
+            int diameter = 2 * Radius;
+            if(Center.X - Radius < 0 || Center.X + Radius >= b.Width ||
+               Center.Y - Radius < 0 || Center.Y + Radius >= b.Height)
+            {
+                MessageBox.Show("drawCircle: Center/Radius mismatch");
+            }
+            Graphics g = Graphics.FromImage(workingImage);
+            SolidBrush brush = new SolidBrush(C);
+
+            g.FillEllipse(brush, new Rectangle(Center.X, Center.Y, Radius, Radius));
+            g.Dispose();
+            brush.Dispose();
+            return true;
+        }
+
+        private void pbMainImage_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (isMouseDown && draw == true)
+            {
+                Point click = calculateClickLocation(e.X, e.Y);
+                int radius = Convert.ToInt32(tbRadius.Text);
+                if (click.X - radius > 0 && click.X + radius < workingImage.Width && click.Y - radius >= 0 && click.Y + radius < workingImage.Height)
+                {
+                    drawCircle(workingImage, click, radius, mainDrawColor);
+                }
+                if(cbPreview.Checked)
+                    pbMainImage.Image = workingImage;
+            }
+        }
+
+        private void pbMainImage_MouseDown(object sender, MouseEventArgs e)
+        {
+            Point click = calculateClickLocation(e.X, e.Y);
+            if (draw == true)
+            {
+                createUndo(workingImage);
+                drawCircle(workingImage, click, Convert.ToInt32(tbRadius.Text), mainDrawColor);
+                if (cbPreview.Checked)
+                    pbMainImage.Image = workingImage;
+
+                isMouseDown = true;
+            }
+            else
+            {
+                MessageBox.Show(workingImage.GetPixel(click.X, click.Y).ToString());
+            }
+        }
+
+        private void pbMainImage_MouseLeave(object sender, EventArgs e)
+        {
+            isMouseDown = false;
+        }
+
+        private void pbMainImage_MouseUp(object sender, MouseEventArgs e)
+        {
+            isMouseDown = false;
+            pbMainImage.Image = workingImage;
+        }
+
+
+
+        private void resizeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SizePicker sp = new SizePicker();
+
+            sp.ShowDialog();
+            if(sp.DialogResult == DialogResult.OK)
+            {
+                Bitmap tmp = new Bitmap(workingImage, sp.chosenWidth, sp.chosenHeight);
+                workingImage.Dispose();
+                workingImage = tmp;
+            }
+        }
+
+        private int clamp(int n)
+        {
+            if (n > 255)
+                return 255;
+            else if (n < 0)
+                return 0;
+            return n;
+        }
+
+        private void multiplyPixel(Bitmap b, double Rmul, double Gmul, double Bmul)
+        {
+            int width = b.Width;
+            int height = b.Height;
+            BitmapData data = b.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        int R = ptr[j * 3 + i * stride + 2];
+                        int G = ptr[j * 3 + i * stride + 1];
+                        int B = ptr[j * 3 + i * stride + 0];
+
+                        R = clamp((int)(R*Rmul));
+                        G = clamp((int)(G * Gmul));
+                        B = clamp((int)(B * Bmul));
+
+                        ptr[j * 3 + i * stride + 2] = (byte)R;
+                        ptr[j * 3 + i * stride + 1] = (byte)G;
+                        ptr[j * 3 + i * stride + 0] = (byte)B;
+                    }
+                }
+            }
+            b.UnlockBits(data);
+        }
+        private void rToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+            multiplyPixel(workingImage, 1, 0, 0);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void gToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+            multiplyPixel(workingImage, 0, 1, 0);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void bToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+            multiplyPixel(workingImage, 0, 0, 1);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void rToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+            multiplyPixel(workingImage, 0, 1, 1);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void gToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+            multiplyPixel(workingImage, 1, 0, 1);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void bToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+            multiplyPixel(workingImage, 1, 1, 0);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void tbRadius_TextChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                uint test = 1 / Convert.ToUInt32(tbRadius.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Radius must be a positive integer!");
+                tbRadius.Text = "1";
+            }
+        }
+
+        private void sinCityEffect(Bitmap bmp)
+        {
+            createUndo(bmp);
+
+            progressBarLoading.Value = 0;
+
+            int rectWidth = bmp.Width;
+            int rectHeight = bmp.Height;
+
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < rectHeight; i++)
+                {
+                    for (int j = 0; j < rectWidth; j++)
+                    {
+                        int R = ptr[j * 3 + i * stride + 2];
+                        int G = ptr[j * 3 + i * stride + 1];
+                        int B = ptr[j * 3 + i * stride + 0];
+                        if (R > 150 || (Math.Abs(G+B) < R))
+                        {
+                            G = (G + B) / 2;
+                            B = G;
+                        }
+                        else
+                        {
+                            int rez = R + B + G;
+                            rez /= 3;
+                            ptr[j * 3 + i * stride + 2] = (byte) rez;
+                            ptr[j * 3 + i * stride + 1] = (byte) rez;
+                            ptr[j * 3 + i * stride + 0] = (byte) rez;
+                        }
+                    }
+                }
+            }
+
+            bmp.UnlockBits(data);
+            pbMainImage.Image = bmp;
+
+        }
+        private void sinCityRToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            sinCityEffect(workingImage);
+        }
+
+        private void sepiaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void brightnessSortToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            progressBarLoading.Value = 0;
+
+            int rectWidth = workingImage.Width;
+            int rectHeight = workingImage.Height;
+
+            progressBarLoading.Value = 1;
+            progressBarLoading.Maximum = 2 * rectHeight + 1;
+            List<Color> l1 = new List<Color>();
+
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < rectHeight; i++)
+                {
+                    for (int j = 0; j < rectWidth; j++)
+                    {
+
+                        int R1 = ptr[j * 3 + i * stride + 2];
+                        int G1 = ptr[j * 3 + i * stride + 1];
+                        int B1 = ptr[j * 3 + i * stride + 0];
+
+                        Color C1 = Color.FromArgb(R1, G1, B1);
+                        l1.Add(C1);
+                    }
+                  progressBarLoading.Value++;
+                }
+                progressBarLoading.ForeColor = Color.Red;
+                progressBarLoading.Refresh();
+
+
+                l1.Sort(delegate (System.Drawing.Color left, System.Drawing.Color right)
+                {
+                    return left.GetBrightness().CompareTo(right.GetBrightness());
+                });
+
+                for (int i = 0; i < rectHeight; i++)
+                {
+                    for (int j = 0; j < rectWidth; j++)
+                    {
+
+                        ptr[j * 3 + i * stride + 2] = l1[i * rectWidth + j].R;
+                        ptr[j * 3 + i * stride + 1] = l1[i * rectWidth + j].G;
+                        ptr[j * 3 + i * stride + 0] = l1[i * rectWidth + j].B;
+                    }
+                    progressBarLoading.Value++;
+                }
+            }
+            /*           BitmapData data = workingImage.LockBits(new Rectangle(0, 0, rectWidth, rectHeight), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+                       int stride = data.Stride;
+                       unsafe
+                       {
+                           byte* ptr = (byte*)data.Scan0;
+                           for (int i = 0; i < rectHeight; i++)
+                           {
+                               for (int j = 0; j < rectWidth; j++)
+                               {
+                                   for (int k = 0; k < rectHeight; k++)
+                                   {
+                                       for (int l = 0; l < rectWidth; l++)
+                                       {
+                                           int R1 = ptr[j * 3 + i * stride + 2];
+                                           int G1 = ptr[j * 3 + i * stride + 1];
+                                           int B1 = ptr[j * 3 + i * stride + 0];
+
+                                           int R2 = ptr[l * 3 + k * stride + 2];
+                                           int G2 = ptr[l * 3 + k * stride + 1];
+                                           int B2 = +ptr[l * 3 + k * stride + 0];
+
+                                           Color C1 = Color.FromArgb(R1, G1, B1);
+                                           Color C2 = Color.FromArgb(R2, G2, B2);
+                                           float S1 = C1.GetBrightness();
+                                           float S2 = C2.GetBrightness();
+
+
+                                           if (S1 < S2)
+                                           {
+                                               byte pom = ptr[j * 3 + i * stride + 2];
+                                               ptr[j * 3 + i * stride + 2] = ptr[l * 3 + k * stride + 2];
+                                               ptr[l * 3 + k * stride + 2] = pom;
+
+                                               pom = ptr[j * 3 + i * stride + 1];
+                                               ptr[j * 3 + i * stride + 1] = ptr[l * 3 + k * stride + 1];
+
+                                               ptr[l * 3 + k * stride + 1] = pom;
+                                               pom = ptr[j * 3 + i * stride + 0];
+                                               ptr[j * 3 + i * stride + 0] = ptr[l * 3 + k * stride + 0];
+                                               ptr[l * 3 + k * stride + 0] = pom;
+                                           }
+                                       }
+                                   }
+                                   progressBarLoading.Value++;
+                               }
+                           }
+                       }*/
+
+            workingImage.UnlockBits(data);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void fibonacciToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            createUndo(workingImage);
+
+            progressBarLoading.Value = 0;
+
+            int width = workingImage.Width;
+            int height = workingImage.Height;
+
+            progressBarLoading.Value = 1;
+            progressBarLoading.Maximum = height + 1;
+            BitmapData data = workingImage.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);
+            int stride = data.Stride;
+            int C0=0, C1=0, C2=1;
+            unsafe
+            {
+                byte* ptr = (byte*)data.Scan0;
+                for (int i = 0; i < height; i++)
+                {
+                    for (int j = 0; j < width; j++)
+                    {
+                        C0 = C1;
+                        C1 = C2;
+                        C2 = C0 + C1;
+
+                        C0 %= 256;
+                        C2 %= 256;
+                        C1 %= 256;
+
+                        ptr[j * 3 + i * stride + 2] = ptr[j * 3 + i * stride + 1] = ptr[j * 3 + i * stride + 0] = (byte) C0;
+                    }
+                    progressBarLoading.Value++;
+                }
+            }
+
+            workingImage.UnlockBits(data);
+            pbMainImage.Image = workingImage;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            pbMainImage.Size = new Size(this.Size.Width - 80, this.Size.Height - 110);
+            progressBarLoading.Size = new Size(this.Size.Width - 28, progressBarLoading.Size.Height);
+            progressBarLoading.Location = new Point(progressBarLoading.Location.X, this.Size.Height - 74);
+        }
+
+        private void pbMainColorPick_Click(object sender, EventArgs e)
+        {
+            ColorPicker C = new ColorPicker();
+            C.ShowDialog();
+            if (C.DialogResult == DialogResult.OK)
+            {
+                mainDrawColor = Color.FromArgb(C.R, C.G, C.B);
+                pbMainColorPick.BackColor = mainDrawColor;
+            }
         }
     }
 }

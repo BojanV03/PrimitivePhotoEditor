@@ -49,20 +49,21 @@
             // btnOk
             // 
             this.btnOk.DialogResult = System.Windows.Forms.DialogResult.OK;
-            this.btnOk.Location = new System.Drawing.Point(12, 105);
+            this.btnOk.Location = new System.Drawing.Point(16, 129);
+            this.btnOk.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnOk.Name = "btnOk";
-            this.btnOk.Size = new System.Drawing.Size(75, 23);
+            this.btnOk.Size = new System.Drawing.Size(100, 28);
             this.btnOk.TabIndex = 0;
             this.btnOk.Text = "OK";
             this.btnOk.UseVisualStyleBackColor = true;
-            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
             // 
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(252, 105);
+            this.btnCancel.Location = new System.Drawing.Point(336, 129);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(75, 23);
+            this.btnCancel.Size = new System.Drawing.Size(100, 28);
             this.btnCancel.TabIndex = 1;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
@@ -70,67 +71,75 @@
             // lblPreview
             // 
             this.lblPreview.AutoSize = true;
-            this.lblPreview.Location = new System.Drawing.Point(141, 89);
+            this.lblPreview.Location = new System.Drawing.Point(188, 110);
+            this.lblPreview.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lblPreview.Name = "lblPreview";
-            this.lblPreview.Size = new System.Drawing.Size(45, 13);
+            this.lblPreview.Size = new System.Drawing.Size(57, 17);
             this.lblPreview.TabIndex = 3;
             this.lblPreview.Text = "Preview";
             // 
             // pbPreview
             // 
-            this.pbPreview.Location = new System.Drawing.Point(93, 105);
+            this.pbPreview.Location = new System.Drawing.Point(124, 129);
+            this.pbPreview.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pbPreview.Name = "pbPreview";
-            this.pbPreview.Size = new System.Drawing.Size(153, 23);
+            this.pbPreview.Size = new System.Drawing.Size(204, 28);
             this.pbPreview.TabIndex = 4;
             this.pbPreview.TabStop = false;
             // 
             // pbRed
             // 
-            this.pbRed.Location = new System.Drawing.Point(13, 13);
+            this.pbRed.Location = new System.Drawing.Point(17, 16);
+            this.pbRed.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pbRed.Name = "pbRed";
-            this.pbRed.Size = new System.Drawing.Size(255, 20);
+            this.pbRed.Size = new System.Drawing.Size(340, 25);
             this.pbRed.TabIndex = 5;
             this.pbRed.TabStop = false;
             this.pbRed.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pbRed_MouseClick);
             // 
             // tbRed
             // 
-            this.tbRed.Location = new System.Drawing.Point(274, 13);
+            this.tbRed.Location = new System.Drawing.Point(365, 16);
+            this.tbRed.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tbRed.Name = "tbRed";
-            this.tbRed.Size = new System.Drawing.Size(53, 20);
+            this.tbRed.Size = new System.Drawing.Size(69, 22);
             this.tbRed.TabIndex = 6;
             this.tbRed.TextChanged += new System.EventHandler(this.tbRed_TextChanged);
             // 
             // tbGreen
             // 
-            this.tbGreen.Location = new System.Drawing.Point(274, 39);
+            this.tbGreen.Location = new System.Drawing.Point(365, 48);
+            this.tbGreen.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tbGreen.Name = "tbGreen";
-            this.tbGreen.Size = new System.Drawing.Size(53, 20);
+            this.tbGreen.Size = new System.Drawing.Size(69, 22);
             this.tbGreen.TabIndex = 8;
             this.tbGreen.TextChanged += new System.EventHandler(this.tbGreen_TextChanged);
             // 
             // pbGreen
             // 
-            this.pbGreen.Location = new System.Drawing.Point(13, 39);
+            this.pbGreen.Location = new System.Drawing.Point(17, 48);
+            this.pbGreen.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pbGreen.Name = "pbGreen";
-            this.pbGreen.Size = new System.Drawing.Size(255, 20);
+            this.pbGreen.Size = new System.Drawing.Size(340, 25);
             this.pbGreen.TabIndex = 7;
             this.pbGreen.TabStop = false;
             this.pbGreen.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pbGreen_MouseClick);
             // 
             // tbBlue
             // 
-            this.tbBlue.Location = new System.Drawing.Point(274, 65);
+            this.tbBlue.Location = new System.Drawing.Point(365, 80);
+            this.tbBlue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tbBlue.Name = "tbBlue";
-            this.tbBlue.Size = new System.Drawing.Size(53, 20);
+            this.tbBlue.Size = new System.Drawing.Size(69, 22);
             this.tbBlue.TabIndex = 10;
             this.tbBlue.TextChanged += new System.EventHandler(this.tbBlue_TextChanged);
             // 
             // pbBlue
             // 
-            this.pbBlue.Location = new System.Drawing.Point(13, 65);
+            this.pbBlue.Location = new System.Drawing.Point(17, 80);
+            this.pbBlue.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pbBlue.Name = "pbBlue";
-            this.pbBlue.Size = new System.Drawing.Size(255, 20);
+            this.pbBlue.Size = new System.Drawing.Size(340, 25);
             this.pbBlue.TabIndex = 9;
             this.pbBlue.TabStop = false;
             this.pbBlue.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pbBlue_MouseClick);
@@ -143,9 +152,9 @@
             // 
             // ColorPicker
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(343, 140);
+            this.ClientSize = new System.Drawing.Size(457, 172);
             this.Controls.Add(this.tbBlue);
             this.Controls.Add(this.pbBlue);
             this.Controls.Add(this.tbGreen);
@@ -156,6 +165,7 @@
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOk);
             this.Controls.Add(this.pbPreview);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "ColorPicker";
             this.Text = "ColorPicker";
             this.Load += new System.EventHandler(this.ColorPicker_Load_1);

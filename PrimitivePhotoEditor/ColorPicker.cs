@@ -90,11 +90,6 @@ namespace PrimitivePhotoEditor
             pbRed.BackColor = Color.Red;
         }
 
-        private void btnOk_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void timer1_Tick(object sender, EventArgs e)
         {
             initializePictureBox(pbRed, Color.FromArgb(255, 0, 0));
