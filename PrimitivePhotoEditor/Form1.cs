@@ -169,12 +169,12 @@ namespace PrimitivePhotoEditor
 //Custom Rotation
         private void rotateCurrentWorkingImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            customRotateImage(workingImage, 90 * Math.PI / 180);
+            customRotateImage(workingImage, 33 * Math.PI / 180);
         }
 
         private void rotateOriginalImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            customRotateImage(originalImage, 90*Math.PI/180);
+            customRotateImage(originalImage, 33*Math.PI/180);
         }
 
         private void customRotateImage(Bitmap b, double angle)
@@ -694,9 +694,9 @@ namespace PrimitivePhotoEditor
                         int tmpGreen = ptr[j * 3 + i * stride + 1];
                         int tmpBlue = ptr[j * 3 + i * stride + 0];
 
-                        R += ptr[tmpRed];
-                        G += ptr[tmpGreen];
-                        B += ptr[tmpBlue];
+                        R += (byte) tmpRed;
+                        G += (byte)tmpGreen;
+                        B += (byte)tmpBlue;
 
                         Color C = Color.FromArgb(tmpRed, tmpGreen, tmpBlue);
                         hue += C.GetHue();
@@ -1123,11 +1123,14 @@ namespace PrimitivePhotoEditor
                         C1 = C2;
                         C2 = C0 + C1;
 
-                        C0 %= 256;
-                        C2 %= 256;
-                        C1 %= 256;
 
-                        ptr[j * 3 + i * stride + 2] = ptr[j * 3 + i * stride + 1] = ptr[j * 3 + i * stride + 0] = (byte) C0;
+                        C0 %= 256;
+                        C1 %= 256;
+                        C2 %= 256;
+
+                        ptr[j * 3 + i * stride + 2] = (byte) C0;
+                        ptr[j * 3 + i * stride + 1] = (byte) C1;
+                        ptr[j * 3 + i * stride + 0] = (byte) C2;
                     }
                     progressBarLoading.Value++;
                 }
@@ -1142,6 +1145,72 @@ namespace PrimitivePhotoEditor
             pbMainImage.Size = new Size(this.Size.Width - 80, this.Size.Height - 110);
             progressBarLoading.Size = new Size(this.Size.Width - 28, progressBarLoading.Size.Height);
             progressBarLoading.Location = new Point(progressBarLoading.Location.X, this.Size.Height - 74);
+        }
+
+        public void mandelbrotGenerator(int numberOfColors)
+        {
+            // Holds all of the possible colors
+            Color[] cs = new Color[numberOfColors];
+            Random R = new Random();
+            int iterator, i, j;
+            double differenceX = 0.0, differenceY = 0.0;
+
+            for (i = 0; i < numberOfColors - 1; i++)
+            {
+                if (numberOfColors < 255)
+                    cs[i] = Color.FromArgb(i * (255 / (numberOfColors - 1)), 0, 0);
+                else
+                {
+                    
+                    cs[i] = Color.FromArgb(clamp(i), clamp(i-256), clamp(i-512));
+                }
+      //          if(i>65533)
+      //          MessageBox.Show(cs[i].ToString());
+            }
+            cs[numberOfColors-1] = Color.Black;
+            double x, y, x1, y1, xx, xmin, xmax, ymin, ymax = 0.0;
+
+            xmin = .335; // Start x value, normally -2.1
+            ymin = .335; // Start y value, normally -1.3
+            xmax = .423; // Finish x value, normally 1
+            ymax = .385; // Finish y value, normally 1.3
+            differenceX = (xmax - xmin) / workingImage.Width; // Make it fill the whole window
+            differenceY = (ymax - ymin) / workingImage.Height;
+            x = xmin;
+            progressBarLoading.Maximum = workingImage.Width;
+            progressBarLoading.Value = 0;
+
+            for (i = 1; i < workingImage.Width; i++)
+            {
+                y = ymin;
+                for (j = 1; j < workingImage.Height; j++)
+                {
+                    x1 = y1 = iterator = 0;
+
+                    while (iterator < (numberOfColors-1) && Math.Sqrt((x1 * x1) + (y1 * y1)) < 2)
+                    {
+                        iterator++;
+                        xx = (x1 * x1) - (y1 * y1) + x;
+                        y1 = 2 * x1 * y1 + y;
+                        x1 = xx;
+                    }
+                    workingImage.SetPixel(i, j, cs[iterator]);
+                    y += differenceY;
+                }
+                progressBarLoading.Value++;
+                x += differenceX;
+                if (numberOfColors > 512)
+                {
+                    pbMainImage.Image = workingImage; // Draw it to the form
+                    pbMainImage.Refresh();
+                }
+            }
+            pbMainImage.Image = workingImage; // Draw it to the form
+        }
+
+        private void mandelbrotToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mandelbrotGenerator(768);
         }
 
         private void pbMainColorPick_Click(object sender, EventArgs e)

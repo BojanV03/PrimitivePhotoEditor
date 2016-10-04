@@ -120,6 +120,7 @@
             this.lblRadius = new System.Windows.Forms.Label();
             this.cbPreview = new System.Windows.Forms.CheckBox();
             this.lblPreview = new System.Windows.Forms.Label();
+            this.mandelbrotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbMainImage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pbMainColorPick)).BeginInit();
@@ -489,7 +490,8 @@
             this.createCanvasToolStripMenuItem,
             this.solidColorToolStripMenuItem,
             this.pixelOperationsToolStripMenuItem,
-            this.fibonacciToolStripMenuItem});
+            this.fibonacciToolStripMenuItem,
+            this.mandelbrotToolStripMenuItem});
             this.generateToolStripMenuItem.Name = "generateToolStripMenuItem";
             this.generateToolStripMenuItem.Size = new System.Drawing.Size(81, 24);
             this.generateToolStripMenuItem.Text = "Generate";
@@ -890,6 +892,13 @@
             this.lblPreview.TabIndex = 8;
             this.lblPreview.Text = "Preview";
             // 
+            // mandelbrotToolStripMenuItem
+            // 
+            this.mandelbrotToolStripMenuItem.Name = "mandelbrotToolStripMenuItem";
+            this.mandelbrotToolStripMenuItem.Size = new System.Drawing.Size(192, 26);
+            this.mandelbrotToolStripMenuItem.Text = "Mandelbrot";
+            this.mandelbrotToolStripMenuItem.Click += new System.EventHandler(this.mandelbrotToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1012,6 +1021,7 @@
         private System.Windows.Forms.ToolStripMenuItem pixelSortToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem brightnessSortToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fibonacciToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mandelbrotToolStripMenuItem;
     }
 }
 
